@@ -2,6 +2,12 @@
 
 A full-stack React starter using [TanStack Start](https://tanstack.com/start) with [Bun](https://bun.sh).
 
+## Prerequisites
+- Node.js (v20+)
+- Bun
+- GitHub CLI (gh)
+- jq (used by Claude Code hooks)
+
 ## Stack
 
 - [TanStack Start](https://tanstack.com/start) — file-based routing, SSR, server functions
@@ -24,3 +30,6 @@ bun run dev
 bun run build
 bun run start
 ```
+
+## Deploy on Railway
+The easiest way to deploy this app is to use [Railway](https://railway.app/new).
