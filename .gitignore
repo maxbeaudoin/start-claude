@@ -10,3 +10,8 @@ count.txt
 .output
 .vinxi
 todos.json
+
+# Claude
+CLAUDE.local.md
+.claude/settings.local.json
+.claude/skills/local/**
