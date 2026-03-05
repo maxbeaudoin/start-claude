@@ -8,16 +8,25 @@ if ! echo "$cmd" | grep -q 'git commit'; then
   exit 0
 fi
 
-echo "--- format ---"
-if ! bun run format:fix; then
-  echo "bun run format:fix failed" >&2
-  exit 2
-fi
+STAGED_FILES=()
+while IFS= read -r file; do
+  STAGED_FILES+=("$file")
+done < <(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx|js|jsx|json)$')
 
-echo "--- lint:fix ---"
-if ! bun run lint:fix; then
-  echo "bun run lint:fix found unfixable errors" >&2
-  exit 2
+if [ ${#STAGED_FILES[@]} -gt 0 ]; then
+  echo "--- format ---"
+  if ! bunx biome format --write "${STAGED_FILES[@]}"; then
+    echo "biome format failed" >&2
+    exit 2
+  fi
+
+  echo "--- lint:fix ---"
+  if ! bunx biome lint --write "${STAGED_FILES[@]}"; then
+    echo "biome lint found unfixable errors" >&2
+    exit 2
+  fi
+
+  git add "${STAGED_FILES[@]}"
 fi
 
 echo "--- typecheck ---"
