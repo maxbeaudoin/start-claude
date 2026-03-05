@@ -50,22 +50,28 @@ Project conventions to follow:
 - Biome formatting: tabs, double quotes
 - Zod for validation where applicable
 
-### 5. Run tests iteratively
+### 5. Implement E2E tests and run iteratively
 
-After each logical unit of implementation:
+Fill in the Playwright stubs from `e2e/<issue-id>.spec.ts`. For each scenario, write the full test body, then run:
+
+```bash
+bun run test:e2e
+```
+
+Fix failures before moving to the next scenario. The goal is to turn all skipped/failing tests green. Follow the SSR testing patterns in CLAUDE.md.
+
+Also run the Vitest suite if there are unit stubs:
 
 ```bash
 bun run test
 ```
-
-Fix failures before moving to the next unit. The goal is to turn all red tests green (TDD green phase).
 
 ### 6. Run quality checks
 
 Once all tests pass, run the full quality suite:
 
 ```bash
-bun run check:fix && bun run typecheck && bun run test && bun run build
+bun run check:fix && bun run typecheck && bun run test && bun run test:e2e && bun run build
 ```
 
 Fix any issues that arise. Iterate until all checks pass.

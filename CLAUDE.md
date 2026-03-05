@@ -11,6 +11,7 @@ bun run start        # serve production build
 bun run test         # run all tests; append a file path to run one
 bun run typecheck    # TypeScript type checking
 bun run check:fix    # Biome lint + format (auto-fix)
+bun run test:e2e     # Playwright E2E tests (requires dev server or uses webServer config)
 bunx shadcn add <component>
 ```
 
@@ -45,7 +46,8 @@ This project uses a design-first, TDD-driven workflow via two Claude Code skills
 **Artifacts**:
 - ADRs: `docs/adr/NNNN-<slug>.md` (MADR v3 format)
 - Specs: `docs/design/<issue-id>-<slug>/spec.md` (Gherkin acceptance criteria)
-- Tests: `src/__tests__/` (Vitest + @testing-library/react)
+- E2E tests: `e2e/` (Playwright) — for acceptance criteria involving UI/interaction
+- Unit tests: `src/__tests__/` (Vitest) — for pure logic with no UI dependency
 
 ## Git Workflow
 
@@ -70,6 +72,16 @@ gh pr create --title "feat: add my feature" --body "## Summary\n- ..."
 - **POLA** — code should behave as a reader would expect, avoid surprises
 - **DRY** — extract shared logic, but only once there are 3+ real uses
 - **SOLID** — single responsibility, open/closed, Liskov substitution, interface segregation, dependency inversion
+
+## Testing
+
+**E2E (Playwright)** — acceptance criteria that involve rendering or user interaction. Config: `playwright.config.ts`. Run with `bun run test:e2e`.
+
+SSR hydration patterns to follow in every Playwright test:
+- Call `await page.waitForLoadState("networkidle")` after every `page.goto()` — the SSR HTML arrives before React hydrates, so interactions fired immediately will miss event handlers
+- Use `pressSequentially("text")` instead of `fill("text")` for React controlled inputs — `fill()` fires native DOM events that bypass React's synthetic event system
+
+**Unit (Vitest)** — pure logic with no UI. Config: `vitest.config.ts` (excludes `e2e/`). Run with `bun run test`.
 
 ## Architecture
 

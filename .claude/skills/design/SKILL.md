@@ -73,19 +73,35 @@ Fill in all sections:
 
 ### 8. Write failing test files
 
-Create test files in `src/__tests__/` — one test file per logical group of acceptance criteria.
+Create two kinds of test stubs:
 
-Follow existing test patterns from `src/__tests__/app.test.ts`:
+**A. Playwright E2E stubs** — for any acceptance criterion that involves UI rendering or user interaction.
+
+Create `e2e/<issue-id-lowercase>.spec.ts`:
+- Import from `@playwright/test`
+- One `test.skip(...)` per Gherkin scenario
+- Each stub name should be the scenario title verbatim
+
+```ts
+import { expect, test } from "@playwright/test";
+
+test.skip("displays 'No todos yet' message when no todos exist", async ({ page }) => {});
+test.skip("adds a todo when clicking the Add button", async ({ page }) => {});
+// ...
+```
+
+**B. Vitest unit stubs** — only for acceptance criteria that test pure logic with no UI (e.g., a utility function, data transformer, or server function in isolation).
+
+Create `src/__tests__/<issue-id>.test.ts` only if such criteria exist:
 - Use Vitest (`describe`, `it`, `expect`)
-- Use `@testing-library/react` for component tests
-- Use the `@/*` path alias for imports
-- Each test should map to a Gherkin acceptance criterion from the spec
-- Tests MUST fail (reference not-yet-existing code, use `it.todo()` for tests that can't be structured yet)
+- Use `it.todo()` for stubs
+
+If all acceptance criteria involve UI interaction, skip the Vitest file entirely.
 
 ### 9. Commit design artifacts
 
 ```bash
-git add docs/ src/__tests__/
+git add docs/ e2e/ src/__tests__/
 git commit -m "docs: add design for <issue-id>"
 ```
 
@@ -98,7 +114,8 @@ Print:
 
 ## Constraints
 
-- Do NOT write any production code (no files in `src/` except test files in `src/__tests__/`)
+- Do NOT write any production code (no files in `src/` except test stubs in `src/__tests__/`)
 - Do NOT modify existing production files
 - Keep specs focused — if the issue is large, note what's out of scope
-- Use project conventions: tabs, double quotes, `@/*` alias, Vitest
+- Use project conventions: tabs, double quotes, `@/*` alias
+- Playwright stubs go in `e2e/`; Vitest stubs go in `src/__tests__/`
