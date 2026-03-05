@@ -9,10 +9,6 @@
 		"preview": "vite preview",
 		"test": "vitest run",
 		"typecheck": "tsc --noEmit",
-		"lint": "biome lint .",
-		"lint:fix": "biome lint --write .",
-		"format": "biome format .",
-		"format:fix": "biome format --write .",
 		"check": "biome check .",
 		"check:fix": "biome check --write ."
 	},

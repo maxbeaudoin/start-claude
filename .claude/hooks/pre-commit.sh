@@ -8,15 +8,9 @@ if ! echo "$cmd" | grep -q 'git commit'; then
   exit 0
 fi
 
-echo "--- format ---"
-if ! bun run format:fix; then
-  echo "bun run format:fix failed" >&2
-  exit 2
-fi
-
-echo "--- lint:fix ---"
-if ! bun run lint:fix; then
-  echo "bun run lint:fix found unfixable errors" >&2
+echo "--- check:fix ---"
+if ! bun run check:fix; then
+  echo "bun run check:fix found unfixable errors" >&2
   exit 2
 fi
 

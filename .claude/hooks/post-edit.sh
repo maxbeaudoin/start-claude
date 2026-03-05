@@ -4,5 +4,5 @@
 
 file=$(jq -r '.tool_input.file_path' < /dev/stdin)
 
-echo "--- format ---"
-bunx biome format --write "$file"
+echo "--- check:fix ---"
+bunx biome check --write "$file"
