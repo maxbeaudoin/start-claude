@@ -98,18 +98,37 @@ Create `src/__tests__/<issue-id>.test.ts` only if such criteria exist:
 
 If all acceptance criteria involve UI interaction, skip the Vitest file entirely.
 
-### 9. Commit design artifacts
+### 9. Update Linear issue
+
+Using the Linear MCP server:
+
+1. Update the issue description with a link to the spec and a summary of the acceptance criteria:
+   ```
+   ## Design
+
+   Spec: `docs/design/<issue-id-lowercase>-<slug>/spec.md`
+   Branch: `<branch-name>`
+
+   ### Acceptance Criteria
+   <paste the Gherkin scenarios verbatim>
+   ```
+2. Set the issue state to **"In Progress"** using `mcp__linear__save_issue` with `state: "In Progress"`.
+
+If the MCP server is unavailable, skip this step and note it in the output summary.
+
+### 10. Commit design artifacts
 
 ```bash
 git add docs/ e2e/ src/__tests__/
 git commit -m "docs: add design for <issue-id>"
 ```
 
-### 10. Output summary
+### 11. Output summary
 
 Print:
 - Branch name
 - List of created files with paths
+- Confirmation that the Linear issue was moved to In Progress
 - Reminder: "Review the design artifacts, then run `/implement <issue-id>` to begin implementation."
 
 ## Constraints
