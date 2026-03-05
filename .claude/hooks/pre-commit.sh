@@ -8,10 +8,19 @@ if ! echo "$cmd" | grep -q 'git commit'; then
   exit 0
 fi
 
-echo "--- check:fix ---"
-if ! bun run check:fix; then
-  echo "bun run check:fix found unfixable errors" >&2
-  exit 2
+STAGED_FILES=()
+while IFS= read -r file; do
+  STAGED_FILES+=("$file")
+done < <(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx|js|jsx|json)$')
+
+if [ ${#STAGED_FILES[@]} -gt 0 ]; then
+  echo "--- check:fix ---"
+  if ! bunx biome check --write "${STAGED_FILES[@]}"; then
+    echo "biome check found unfixable errors" >&2
+    exit 2
+  fi
+
+  git add "${STAGED_FILES[@]}"
 fi
 
 echo "--- typecheck ---"
