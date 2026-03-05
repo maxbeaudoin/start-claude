@@ -30,10 +30,6 @@ git push -u origin feat/my-feature
 gh pr create --title "feat: add my feature" --body "## Summary\n- ..."
 ```
 
-## Bash Permissions
-
-The allowlist in `.claude/settings.json` matches each Bash command as a prefix. **Never chain whitelisted commands** with `&&` or `;` — compound commands break the match and trigger approval prompts. Run each command as a separate Bash call instead.
-
 ## Principles
 
 - **KISS** — prefer the simplest solution that works

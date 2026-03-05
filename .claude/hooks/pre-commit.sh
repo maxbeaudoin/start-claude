@@ -15,7 +15,7 @@ done < <(git diff --cached --name-only --diff-filter=ACM)
 
 if [ ${#STAGED_FILES[@]} -gt 0 ]; then
   echo "--- check:fix ---"
-  if ! bunx biome check --write "${STAGED_FILES[@]}"; then
+  if ! bunx biome check --write --no-errors-on-unmatched "${STAGED_FILES[@]}"; then
     echo "biome check found unfixable errors" >&2
     exit 2
   fi
