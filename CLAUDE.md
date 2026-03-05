@@ -14,6 +14,39 @@ bun run check:fix    # Biome lint + format (auto-fix)
 bunx shadcn add <component>
 ```
 
+## Setup
+
+### Secrets / Environment Variables
+
+Secrets live in `.claude/settings.local.json` (gitignored) under the `env` key. Claude Code injects these into its session and passes them to MCP servers.
+
+### Linear MCP Server
+
+The `/design` skill uses the Linear MCP server (configured in `.mcp.json`) to fetch issue details.
+
+1. Generate a Linear API key: **Linear → Settings → API → Personal API keys**
+2. Add it to `.claude/settings.local.json`:
+   ```json
+   {
+     "env": {
+       "LINEAR_API_KEY": "lin_api_xxxxxxxxxxxx"
+     }
+   }
+   ```
+3. Restart Claude Code.
+
+## Task Workflow
+
+This project uses a design-first, TDD-driven workflow via two Claude Code skills:
+
+1. **`/design <Linear issue ID>`** — Fetches issue from Linear, creates feature branch, writes ADR (if needed), spec with Gherkin acceptance criteria, and failing test stubs. Commits design artifacts for review.
+2. **`/implement <Linear issue ID>`** — Reads design artifacts, implements code per spec, runs tests iteratively until green, runs quality checks, commits, pushes, and opens a PR.
+
+**Artifacts**:
+- ADRs: `docs/adr/NNNN-<slug>.md` (MADR v3 format)
+- Specs: `docs/design/<issue-id>-<slug>/spec.md` (Gherkin acceptance criteria)
+- Tests: `src/__tests__/` (Vitest + @testing-library/react)
+
 ## Git Workflow
 
 Branches: `feat/`, `fix/`, `chore/`, `docs/` + short description.

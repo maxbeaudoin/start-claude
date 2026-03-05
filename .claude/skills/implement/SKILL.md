@@ -1,0 +1,118 @@
+---
+name: implement
+description: Implement a feature from /design artifacts — writes code to pass TDD tests, runs quality checks, and opens a PR.
+model: sonnet
+disable-model-invocation: true
+---
+
+# /implement
+
+Implement a feature from existing `/design` artifacts. Writes production code to pass TDD tests, runs quality checks, and opens a PR for review.
+
+## Input
+
+`$ARGUMENTS` — a Linear issue ID (e.g., `LIN-123`).
+
+## Steps
+
+### 1. Find design artifacts
+
+Parse the issue ID from `$ARGUMENTS` and glob for `docs/design/<id>-*/spec.md` (case-insensitive on the ID portion).
+
+If no spec is found, tell the user: "No design artifacts found for `<issue-id>`. Run `/design <issue-id>` first."
+
+### 2. Read design artifacts
+
+- Read the spec (`spec.md`)
+- Read the referenced ADR if one exists
+- Read all test files referenced in or related to the spec
+
+### 3. Verify branch
+
+Check that the current branch matches the expected feature branch. If not, check it out:
+
+```bash
+git checkout <branch-name>
+```
+
+### 4. Implement per file change manifest
+
+Follow the spec's File Changes table. For each file:
+- **Create**: Write new files following project conventions
+- **Modify**: Read the existing file first, then edit
+- **Delete**: Remove the file
+
+Project conventions to follow:
+- TanStack Start file-based routing (`src/routes/`)
+- shadcn/ui components ("new-york" style, neutral base, CSS variables, Lucide icons)
+- Tailwind CSS v4 for styling
+- `@/*` path alias for imports from `src/`
+- Biome formatting: tabs, double quotes
+- Zod for validation where applicable
+
+### 5. Run tests iteratively
+
+After each logical unit of implementation:
+
+```bash
+bun run test
+```
+
+Fix failures before moving to the next unit. The goal is to turn all red tests green (TDD green phase).
+
+### 6. Run quality checks
+
+Once all tests pass, run the full quality suite:
+
+```bash
+bun run check:fix && bun run typecheck && bun run test && bun run build
+```
+
+Fix any issues that arise. Iterate until all checks pass.
+
+### 7. Commit implementation
+
+Stage only the implementation files (not design docs, which are already committed):
+
+```bash
+git add <implementation-files>
+git commit -m "feat: <description> (<issue-id>)"
+```
+
+Use the appropriate conventional commit prefix (`feat:`, `fix:`, etc.) matching the branch prefix.
+
+### 8. Push and open PR
+
+```bash
+git push -u origin <branch-name>
+gh pr create --title "<type>: <description>" --body "$(cat <<'EOF'
+## Summary
+<1-3 bullet points from spec summary>
+
+## Design Artifacts
+- Spec: `docs/design/<issue-id>-<slug>/spec.md`
+- ADR: `docs/adr/NNNN-<slug>.md` (if applicable)
+
+## Test Coverage
+- [ ] All acceptance criteria have passing tests
+- [ ] Quality checks pass (biome, typecheck, test, build)
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+EOF
+)"
+```
+
+### 9. Output summary
+
+Print:
+- PR URL
+- Summary of files changed
+- Test results summary
+- Reminder: "Review the PR and merge when ready."
+
+## Constraints
+
+- Only implement what is specified in the spec — do NOT add unrequested features
+- Do NOT modify design docs (`docs/design/`, `docs/adr/`)
+- If the spec is ambiguous, ask the user for clarification before proceeding
+- Follow all project conventions from CLAUDE.md
