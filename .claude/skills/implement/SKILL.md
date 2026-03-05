@@ -78,10 +78,17 @@ Fix any issues that arise. Iterate until all checks pass.
 
 ### 7. Commit implementation
 
-Stage only the implementation files (not design docs, which are already committed):
+Delete the spec now that the Playwright tests are the living specification:
+
+```bash
+rm -rf docs/design/<issue-id>-*/
+```
+
+Stage implementation files and the spec deletion together:
 
 ```bash
 git add <implementation-files>
+git rm -r docs/design/<issue-id>-*/
 git commit -m "feat: <description> (<issue-id>)"
 ```
 
@@ -95,9 +102,8 @@ gh pr create --title "<type>: <description>" --body "$(cat <<'EOF'
 ## Summary
 <1-3 bullet points from spec summary>
 
-## Design Artifacts
-- Spec: `docs/design/<issue-id>-<slug>/spec.md`
-- ADR: `docs/adr/NNNN-<slug>.md` (if applicable)
+## ADR
+<link to `docs/adr/NNNN-<slug>.md` if one exists, otherwise omit this section>
 
 ## Test Coverage
 - [ ] All acceptance criteria have passing tests
