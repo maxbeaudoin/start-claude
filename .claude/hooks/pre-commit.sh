@@ -11,7 +11,7 @@ fi
 STAGED_FILES=()
 while IFS= read -r file; do
   STAGED_FILES+=("$file")
-done < <(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx|js|jsx|json)$')
+done < <(git diff --cached --name-only --diff-filter=ACM)
 
 if [ ${#STAGED_FILES[@]} -gt 0 ]; then
   echo "--- check:fix ---"
