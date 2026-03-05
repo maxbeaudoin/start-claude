@@ -9,6 +9,8 @@ count.txt
 .output
 .vinxi
 todos.json
+/playwright-report/
+/test-results/
 
 # Claude
 CLAUDE.local.md
