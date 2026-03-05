@@ -108,7 +108,19 @@ EOF
 )"
 ```
 
-### 9. Output summary
+### 9. Update Linear issue
+
+Using the Linear MCP server:
+
+1. Post a comment on the issue with the PR link:
+   ```
+   PR ready for review: <PR URL>
+   ```
+2. Set the issue state to **"In Review"** using `mcp__linear__save_issue` with `state: "In Review"`.
+
+If the MCP server is unavailable, skip this step and note it in the output summary.
+
+### 10. Output summary
 
 Print:
 - PR URL
