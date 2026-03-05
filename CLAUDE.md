@@ -20,13 +20,19 @@ Branches: `feat/`, `fix/`, `chore/`, `docs/` + short description.
 Commits follow Conventional Commits — `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`.
 
 ```bash
-git checkout main && git pull
+git checkout main
+git pull
 git checkout -b feat/my-feature
 bun run check:fix
-git add <files> && git commit -m "feat: add my feature"
+git add <files>
+git commit -m "feat: add my feature"
 git push -u origin feat/my-feature
 gh pr create --title "feat: add my feature" --body "## Summary\n- ..."
 ```
+
+## Bash Permissions
+
+The allowlist in `.claude/settings.json` matches each Bash command as a prefix. **Never chain whitelisted commands** with `&&` or `;` — compound commands break the match and trigger approval prompts. Run each command as a separate Bash call instead.
 
 ## Principles
 
