@@ -1,39 +1,97 @@
-import { createFileRoute } from "@tanstack/react-router";
-import logo from "../logo.svg";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { Trash2 } from "lucide-react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { addTodo, deleteTodo, getTodos, toggleTodo } from "@/server/todos";
 
 export const Route = createFileRoute("/")({
-	component: App,
+	component: TodoApp,
+	loader: async () => await getTodos(),
 });
 
-function App() {
+function TodoApp() {
+	const router = useRouter();
+	const todos = Route.useLoaderData();
+	const [text, setText] = useState("");
+
+	async function handleAdd() {
+		if (!text.trim()) return;
+		await addTodo({ data: text.trim() });
+		setText("");
+		router.invalidate();
+	}
+
+	async function handleToggle(id: string) {
+		await toggleTodo({ data: id });
+		router.invalidate();
+	}
+
+	async function handleDelete(id: string) {
+		await deleteTodo({ data: id });
+		router.invalidate();
+	}
+
 	return (
-		<div className="text-center">
-			<header className="min-h-screen flex flex-col items-center justify-center bg-[#282c34] text-white text-[calc(10px+2vmin)]">
-				<img
-					src={logo}
-					className="h-[40vmin] pointer-events-none animate-[spin_20s_linear_infinite]"
-					alt="logo"
-				/>
-				<p>
-					Edit <code>src/routes/index.tsx</code> and save to reload.
-				</p>
-				<a
-					className="text-[#61dafb] hover:underline"
-					href="https://reactjs.org"
-					target="_blank"
-					rel="noopener noreferrer"
-				>
-					Learn React
-				</a>
-				<a
-					className="text-[#61dafb] hover:underline"
-					href="https://tanstack.com"
-					target="_blank"
-					rel="noopener noreferrer"
-				>
-					Learn TanStack
-				</a>
-			</header>
+		<div className="flex justify-center py-12 px-4">
+			<Card className="w-full max-w-md">
+				<CardHeader>
+					<CardTitle>Todo</CardTitle>
+				</CardHeader>
+				<CardContent className="space-y-4">
+					<div className="flex gap-2">
+						<Input
+							value={text}
+							onChange={(e) => setText(e.target.value)}
+							onKeyDown={(e) => {
+								if (e.key === "Enter") handleAdd();
+							}}
+							placeholder="What needs to be done?"
+						/>
+						<Button onClick={handleAdd} disabled={!text.trim()}>
+							Add
+						</Button>
+					</div>
+					{todos.length === 0 ? (
+						<p className="text-muted-foreground text-sm text-center py-4">
+							No todos yet
+						</p>
+					) : (
+						<ul className="space-y-2">
+							{todos.map((todo) => (
+								<li
+									key={todo.id}
+									className="flex items-center gap-3 rounded-md border p-3"
+								>
+									<Checkbox
+										checked={todo.completed}
+										onCheckedChange={() => handleToggle(todo.id)}
+									/>
+									<span
+										className={
+											todo.completed
+												? "flex-1 line-through text-muted-foreground"
+												: "flex-1"
+										}
+									>
+										{todo.text}
+									</span>
+									<Button
+										variant="ghost"
+										size="icon"
+										onClick={() => handleDelete(todo.id)}
+										aria-label={`Delete ${todo.text}`}
+									>
+										<Trash2 className="h-4 w-4" />
+									</Button>
+								</li>
+							))}
+						</ul>
+					)}
+				</CardContent>
+			</Card>
 		</div>
 	);
 }
