@@ -17,15 +17,15 @@ Implement a feature from existing `/design` artifacts. Writes production code to
 
 ### 1. Find design artifacts
 
-Parse the issue ID from `$ARGUMENTS` and glob for `docs/design/<id>-*/spec.md` (case-insensitive on the ID portion).
+Parse the issue ID from `$ARGUMENTS` and glob for `specs/<id>-*/spec.md` (case-insensitive on the ID portion).
 
 If no spec is found, tell the user: "No design artifacts found for `<issue-id>`. Run `/design <issue-id>` first."
 
 ### 2. Read design artifacts
 
-- Read the spec (`spec.md`)
-- Read the referenced ADR if one exists
-- Read all test files referenced in or related to the spec
+- Read the spec (`specs/<issue-id>-*/spec.md`)
+- Read the referenced ADR if one exists (`docs/adr/`)
+- Read the Playwright stubs (`e2e/<issue-id>.spec.ts`)
 
 ### 3. Verify branch
 
@@ -35,12 +35,9 @@ Check that the current branch matches the expected feature branch. If not, check
 git checkout <branch-name>
 ```
 
-### 4. Implement per file change manifest
+### 4. Implement per spec
 
-Follow the spec's File Changes table. For each file:
-- **Create**: Write new files following project conventions
-- **Modify**: Read the existing file first, then edit
-- **Delete**: Remove the file
+Use the spec's User Scenarios as the source of truth for what to build. Derive the file changes needed from the technical context and codebase — the spec describes *what*, you determine *how*.
 
 Project conventions to follow:
 - TanStack Start file-based routing (`src/routes/`)
@@ -78,17 +75,10 @@ Fix any issues that arise. Iterate until all checks pass.
 
 ### 7. Commit implementation
 
-Delete the spec now that the Playwright tests are the living specification:
-
-```bash
-rm -rf docs/design/<issue-id>-*/
-```
-
-Stage implementation files and the spec deletion together:
+Stage only implementation files — specs are permanent and must not be deleted:
 
 ```bash
 git add <implementation-files>
-git rm -r docs/design/<issue-id>-*/
 git commit -m "feat: <description> (<issue-id>)"
 ```
 
@@ -102,11 +92,14 @@ gh pr create --title "<type>: <description>" --body "$(cat <<'EOF'
 ## Summary
 <1-3 bullet points from spec summary>
 
+## Spec
+`specs/<issue-id>-<slug>/spec.md`
+
 ## ADR
 <link to `docs/adr/NNNN-<slug>.md` if one exists, otherwise omit this section>
 
 ## Test Coverage
-- [ ] All acceptance criteria have passing tests
+- [ ] All acceptance criteria have passing Playwright tests
 - [ ] Quality checks pass (biome, typecheck, test, build)
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
@@ -137,6 +130,6 @@ Print:
 ## Constraints
 
 - Only implement what is specified in the spec — do NOT add unrequested features
-- Do NOT modify design docs (`docs/design/`, `docs/adr/`)
+- Do NOT modify or delete specs (`specs/`) or ADRs (`docs/adr/`) — they are permanent
 - If the spec is ambiguous, ask the user for clarification before proceeding
 - Follow all project conventions from CLAUDE.md

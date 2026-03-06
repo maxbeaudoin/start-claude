@@ -1,13 +1,13 @@
 ---
 name: design
-description: Design a feature from a Linear issue — produces ADR, spec with Gherkin acceptance criteria, and failing TDD test stubs. Creates the feature branch.
+description: Design a feature from a Linear issue — produces ADR, Spec Kit spec, and Playwright TDD stubs. Creates the feature branch and syncs Linear.
 model: opus
 disable-model-invocation: true
 ---
 
 # /design
 
-Design a feature from a Linear issue. Creates a feature branch with design artifacts (ADR, spec, failing tests) for human review before implementation.
+Design a feature from a Linear issue. Produces four artifacts: ADR (if needed), Spec Kit spec, Playwright E2E stubs, and a Linear issue update. Commits everything for human review before implementation.
 
 ## Input
 
@@ -21,17 +21,16 @@ Extract the Linear issue identifier from `$ARGUMENTS`. Accept both short IDs (`L
 
 ### 2. Fetch issue details
 
-Use the Linear MCP server tools to fetch the issue:
-- Title, description, labels, priority, project
-- If the MCP server is unavailable, ask the user to provide issue details manually
+Use the Linear MCP server to fetch the issue: title, description, labels, priority, project.
+If unavailable, ask the user to provide issue details manually.
 
 ### 3. Derive branch name
 
-Based on the issue type/labels, choose a branch prefix:
-- Bug/fix labels -> `fix/`
-- Docs labels -> `docs/`
-- Chore/maintenance labels -> `chore/`
-- Everything else -> `feat/`
+Choose a prefix based on issue type/labels:
+- Bug/fix → `fix/`
+- Docs → `docs/`
+- Chore/maintenance → `chore/`
+- Everything else → `feat/`
 
 Format: `<prefix><issue-id-lowercase>-<slugified-title>` (e.g., `feat/lin-123-user-auth`)
 
@@ -41,114 +40,83 @@ Format: `<prefix><issue-id-lowercase>-<slugified-title>` (e.g., `feat/lin-123-us
 git checkout main && git pull && git checkout -b <branch-name>
 ```
 
-### 5. Determine if ADR is needed
+### 5. Write ADR (if needed)
 
-An ADR is needed when the issue involves:
-- Adding a new dependency or tool
-- An architecture change (new layer, service, pattern)
-- Multiple valid approaches where the rationale should be recorded
-- Setting a precedent for future work
+An ADR is needed when the issue involves a new dependency, an architecture change, multiple valid approaches, or a precedent worth recording. Skip if none apply.
 
-If none apply, skip ADR creation.
+- Count existing files in `docs/adr/` to get the next number (NNNN)
+- Create `docs/adr/NNNN-<slug>.md` from `docs/adr/template.md`
+- Status: "Proposed". Fill Context and Decision from the issue.
 
-### 6. Write ADR (if needed)
+### 6. Write Spec Kit spec
 
-- Count existing files in `docs/adr/` to determine the next number (NNNN format, e.g., `0001`)
-- Create `docs/adr/NNNN-<slug>.md` using the template at `docs/adr/template.md`
-- Set status to "Proposed"
-- Fill in Context and Decision based on the issue details
+Create `specs/<issue-id-lowercase>-<slug>/spec.md` using the template at `.specify/templates/spec-template.md`.
 
-### 7. Write spec
+Derive content from the Linear issue:
+- **User Scenarios & Testing**: translate the issue requirements into prioritized user stories (P1 must-have, P2 should-have, P3 nice-to-have). Each story needs independently testable acceptance scenarios in Given/When/Then format.
+- **Requirements**: functional requirements derived from the issue description
+- **Success Criteria**: measurable outcomes that define done
 
-Create `docs/design/<issue-id-lowercase>-<slug>/spec.md` using the template at `docs/design/template-spec.md`.
+**Acceptance scenario guidelines** — write each so it maps to a single Playwright test:
+- One observable action + one clear outcome per scenario
+- Avoid AND — split into two scenarios instead
+- Use concrete values (`"displays 'No results found'"` not `"shows empty state"`)
 
-Fill in all sections:
-
-**Product sections** (derived from the Linear issue — if the issue was created by `/kickoff`, copy directly):
-- **Opportunity**: Problem, who is affected, business value, why now
-- **User Stories**: P1 (must-have), P2 (should-have), P3 (nice-to-have) — omit P2/P3 if not applicable. Each story has plain-language description + acceptance criteria in Given/When/Then format
-- **Success Criteria**: Measurable outcomes that define done
-
-**Technical sections** (derived by analysis of the codebase):
-- **ADR Reference**: Link to the ADR if one was created, or "N/A"
-- **Technical Approach**: Components, data flow, key decisions — concise
-- **File Changes**: Table of files to create/modify/delete
-- **Out of Scope**: What this issue explicitly does NOT cover
-
-**Acceptance Criteria guidelines** — write them so each maps to a single Playwright test:
-- One observable action and one clear outcome per criterion
-- Avoid AND in a single criterion — split into two
-- Use concrete values ("displays 'No results found'" not "shows empty state")
-
-### 8. Write failing test files
-
-Create two kinds of test stubs:
-
-**A. Playwright E2E stubs** — for any acceptance criterion that involves UI rendering or user interaction.
+### 7. Write Playwright E2E stubs
 
 Create `e2e/<issue-id-lowercase>.spec.ts`:
-- Import from `@playwright/test`
-- Group stubs by User Story using `test.describe()` labelled with the story title and priority
-- One `test.skip(...)` per acceptance criterion — name matches the criterion verbatim
+- Group by user story using `test.describe()` matching the story title and priority
+- One `test.skip()` per acceptance scenario — name matches verbatim
 
 ```ts
 import { expect, test } from "@playwright/test";
 
 test.describe("P1 — {User Story title}", () => {
-  test.skip("{acceptance criterion}", async ({ page }) => {});
-  test.skip("{acceptance criterion}", async ({ page }) => {});
+  test.skip("{acceptance scenario}", async ({ page }) => {});
+  test.skip("{acceptance scenario}", async ({ page }) => {});
 });
 
 test.describe("P2 — {User Story title}", () => {
-  test.skip("{acceptance criterion}", async ({ page }) => {});
+  test.skip("{acceptance scenario}", async ({ page }) => {});
 });
 ```
 
-**B. Vitest unit stubs** — only for acceptance criteria that test pure logic with no UI (e.g., a utility function, data transformer, or server function in isolation).
+For pure logic with no UI (utility functions, data transformers), also create `src/__tests__/<issue-id>.test.ts` with Vitest `it.todo()` stubs. Skip if all criteria involve UI.
 
-Create `src/__tests__/<issue-id>.test.ts` only if such criteria exist:
-- Use Vitest (`describe`, `it`, `expect`)
-- Use `it.todo()` for stubs
-
-If all acceptance criteria involve UI interaction, skip the Vitest file entirely.
-
-### 9. Update Linear issue
+### 8. Update Linear issue
 
 Using the Linear MCP server:
 
-1. Update the issue description with a link to the spec and a summary of the acceptance criteria:
+1. Update the issue description — prepend a Design block to the existing content:
    ```
    ## Design
 
-   Spec: `docs/design/<issue-id-lowercase>-<slug>/spec.md`
+   Spec: `specs/<issue-id-lowercase>-<slug>/spec.md`
    Branch: `<branch-name>`
-
-   ### Acceptance Criteria
-   <paste the Gherkin scenarios verbatim>
+   ADR: `docs/adr/NNNN-<slug>.md` *(if applicable)*
    ```
-2. Set the issue state to **"In Progress"** using `mcp__linear__save_issue` with `state: "In Progress"`.
+2. Set state to **"In Progress"** via `mcp__linear__save_issue`.
 
-If the MCP server is unavailable, skip this step and note it in the output summary.
+If the MCP server is unavailable, skip and note it in the output.
 
-### 10. Commit design artifacts
+### 9. Commit design artifacts
 
 ```bash
-git add docs/ e2e/ src/__tests__/
+git add docs/adr/ specs/ e2e/ src/__tests__/
 git commit -m "docs: add design for <issue-id>"
 ```
 
-### 11. Output summary
+### 10. Output summary
 
 Print:
 - Branch name
-- List of created files with paths
-- Confirmation that the Linear issue was moved to In Progress
+- Files created
+- Linear issue moved to In Progress
 - Reminder: "Review the design artifacts, then run `/implement <issue-id>` to begin implementation."
 
 ## Constraints
 
-- Do NOT write any production code (no files in `src/` except test stubs in `src/__tests__/`)
+- Do NOT write production code (`src/` is off-limits except `src/__tests__/`)
 - Do NOT modify existing production files
-- Keep specs focused — if the issue is large, note what's out of scope
-- Use project conventions: tabs, double quotes, `@/*` alias
+- Specs go in `specs/` using the Spec Kit template at `.specify/templates/spec-template.md`
 - Playwright stubs go in `e2e/`; Vitest stubs go in `src/__tests__/`

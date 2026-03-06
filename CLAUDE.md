@@ -44,10 +44,10 @@ This project uses a design-first, TDD-driven workflow via two Claude Code skills
 2. **`/implement <Linear issue ID>`** — Reads design artifacts, implements code per spec, runs tests iteratively until green, runs quality checks, commits, pushes, and opens a PR.
 
 **Artifacts**:
-- ADRs: `docs/adr/NNNN-<slug>.md` (MADR v3 format)
-- Specs: `docs/design/<issue-id>-<slug>/spec.md` (Gherkin acceptance criteria)
-- E2E tests: `e2e/` (Playwright) — for acceptance criteria involving UI/interaction
-- Unit tests: `src/__tests__/` (Vitest) — for pure logic with no UI dependency
+- ADRs: `docs/adr/NNNN-<slug>.md` (MADR v3 format) — permanent architectural decisions
+- Specs: `specs/<issue-id>-<slug>/spec.md` (Spec Kit format) — cumulative product documentation, never deleted
+- E2E tests: `e2e/` (Playwright) — executable verification of acceptance criteria
+- Unit tests: `src/__tests__/` (Vitest) — pure logic with no UI dependency
 
 ## Git Workflow
 
