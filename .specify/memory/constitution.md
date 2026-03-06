@@ -1,17 +1,23 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: [unversioned template] → 1.0.0
-Added sections: Core Principles (I–V), Tech Stack, Development Workflow, Governance
-Removed sections: N/A (initial population)
-Modified principles: N/A (initial population)
+Version change: 1.0.0 → 1.1.0
+Added sections: N/A
+Removed sections: N/A
+Modified principles:
+  - II: "Test-Driven Development — Playwright-First" →
+        "Test-Driven Development — Testing Pyramid"
+    Expanded Vitest scope from "pure logic only" to cover integration and
+    unit testing for all server-side code (server functions, API handlers,
+    business logic). Playwright remains the tool for acceptance/E2E criteria.
+  - I: updated workflow artifact list to include plan.md and tasks.md
 
 Templates reviewed:
-  ✅ .specify/templates/spec-template.md — aligned (User Scenarios, Requirements, Success Criteria)
-  ✅ .specify/templates/plan-template.md — aligned (Constitution Check gate retained)
-  ✅ .specify/templates/tasks-template.md — aligned (TDD ordering, story independence)
+  ✅ .specify/templates/spec-template.md — aligned
+  ✅ .specify/templates/plan-template.md — aligned
+  ✅ .specify/templates/tasks-template.md — aligned
 
-Follow-up TODOs: none — all placeholders resolved from repo context.
+Follow-up TODOs: none.
 -->
 
 # start-claude Constitution
@@ -26,31 +32,42 @@ format and are permanent — they accumulate to describe the full product over
 time and MUST NOT be deleted after implementation.
 
 The workflow is strictly ordered:
-1. `/design` — produces spec + ADR (if needed) + Playwright stubs
+1. `/design` — produces spec + plan + tasks + ADR (if needed) + test stubs
 2. Human review of design artifacts
-3. `/implement` — implements code to make stubs green
+3. `/implement` — implements code to make tests green
 
 Skipping the spec phase or writing code before the spec is approved is a
 constitution violation.
 
-### II. Test-Driven Development — Playwright-First (NON-NEGOTIABLE)
+### II. Test-Driven Development — Testing Pyramid (NON-NEGOTIABLE)
 
-Acceptance criteria in specs MUST be translated into Playwright E2E test stubs
-(`e2e/<issue-id>.spec.ts`) during `/design`. These stubs MUST exist and be
-skipped (not absent) before implementation begins.
+Every acceptance criterion in the spec MUST be backed by a test stub during
+`/design`. Test stubs MUST exist and be skipped (not absent) before
+implementation begins. During `/implement`, stubs are filled in and run
+iteratively — each MUST be green before moving to the next.
 
-During `/implement`, stubs are filled in and run iteratively — each scenario
-MUST be green before moving to the next. The full suite (`bun run test:e2e`)
-MUST pass before opening a PR.
+**Choose the right tool for each layer:**
 
-For SSR (TanStack Start) apps specifically:
+| Layer | Tool | When to use |
+|---|---|---|
+| Acceptance / E2E | Playwright (`e2e/`) | Criteria involving UI rendering, user interaction, or full-stack flows |
+| Integration | Vitest (`src/__tests__/`) | Server functions, API handlers, DB interactions, multi-module behaviour |
+| Unit | Vitest (`src/__tests__/`) | Business logic, data transforms, validation, pure utilities |
+
+Use the innermost layer that gives confident coverage. Do not default to
+Playwright when a Vitest integration test can verify the same behaviour faster
+and more precisely.
+
+The full suite MUST pass before opening a PR:
+```
+bun run test && bun run test:e2e
+```
+
+**SSR-specific Playwright patterns (TanStack Start):**
 - MUST call `await page.waitForLoadState("networkidle")` after every
   `page.goto()` to ensure React has hydrated before interacting
 - MUST use `pressSequentially()` instead of `fill()` for React controlled
   inputs
-
-Vitest unit tests (`src/__tests__/`) are used only for pure logic with no UI
-dependency.
 
 ### III. Simplicity (KISS + YAGNI)
 
@@ -108,7 +125,7 @@ after mutations
 
 ```
 /kickoff <idea>     → structured Linear issue (Todo)
-/design <issue-id>  → branch + spec + ADR + Playwright stubs (In Progress)
+/design <issue-id>  → branch + spec + plan + tasks + ADR + test stubs (In Progress)
                        human reviews artifacts
 /implement <id>     → code + green tests + PR (In Review)
                        human reviews and merges
@@ -116,9 +133,11 @@ after mutations
 
 Artifacts produced per feature:
 - `specs/<issue-id>-<slug>/spec.md` — permanent product spec (Spec Kit format)
+- `specs/<issue-id>-<slug>/plan.md` — implementation plan (Spec Kit format)
+- `specs/<issue-id>-<slug>/tasks.md` — ordered task list (Spec Kit format)
 - `docs/adr/NNNN-<slug>.md` — permanent architectural decision (if needed)
-- `e2e/<issue-id>.spec.ts` — Playwright E2E tests (executable acceptance criteria)
-- `src/__tests__/<issue-id>.test.ts` — Vitest unit stubs (only if pure logic)
+- `e2e/<issue-id>.spec.ts` — Playwright E2E stubs (UI acceptance criteria)
+- `src/__tests__/<issue-id>.test.ts` — Vitest stubs (integration + unit criteria)
 
 ## Governance
 
@@ -141,4 +160,4 @@ All PRs and reviews MUST verify compliance with principles I and II before
 merging. Constitution violations MUST be called out in PR review and resolved
 before merge.
 
-**Version**: 1.0.0 | **Ratified**: 2026-03-05 | **Last Amended**: 2026-03-05
+**Version**: 1.1.0 | **Ratified**: 2026-03-05 | **Last Amended**: 2026-03-05
