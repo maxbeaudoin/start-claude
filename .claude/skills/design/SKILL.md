@@ -63,13 +63,22 @@ If none apply, skip ADR creation.
 Create `docs/design/<issue-id-lowercase>-<slug>/spec.md` using the template at `docs/design/template-spec.md`.
 
 Fill in all sections:
-- **Summary**: One-paragraph description derived from the issue
-- **Motivation**: Why this change is needed (from issue description)
+
+**Product sections** (derived from the Linear issue — if the issue was created by `/kickoff`, copy directly):
+- **Opportunity**: Problem, who is affected, business value, why now
+- **User Stories**: P1 (must-have), P2 (should-have), P3 (nice-to-have) — omit P2/P3 if not applicable. Each story has plain-language description + acceptance criteria in Given/When/Then format
+- **Success Criteria**: Measurable outcomes that define done
+
+**Technical sections** (derived by analysis of the codebase):
 - **ADR Reference**: Link to the ADR if one was created, or "N/A"
-- **Acceptance Criteria**: Gherkin-format scenarios (Given/When/Then) covering all requirements from the issue
-- **Technical Approach**: How to implement — components, data flow, key decisions
-- **File Changes**: Table of files to create/modify/delete with descriptions
+- **Technical Approach**: Components, data flow, key decisions — concise
+- **File Changes**: Table of files to create/modify/delete
 - **Out of Scope**: What this issue explicitly does NOT cover
+
+**Acceptance Criteria guidelines** — write them so each maps to a single Playwright test:
+- One observable action and one clear outcome per criterion
+- Avoid AND in a single criterion — split into two
+- Use concrete values ("displays 'No results found'" not "shows empty state")
 
 ### 8. Write failing test files
 
@@ -79,15 +88,20 @@ Create two kinds of test stubs:
 
 Create `e2e/<issue-id-lowercase>.spec.ts`:
 - Import from `@playwright/test`
-- One `test.skip(...)` per Gherkin scenario
-- Each stub name should be the scenario title verbatim
+- Group stubs by User Story using `test.describe()` labelled with the story title and priority
+- One `test.skip(...)` per acceptance criterion — name matches the criterion verbatim
 
 ```ts
 import { expect, test } from "@playwright/test";
 
-test.skip("displays 'No todos yet' message when no todos exist", async ({ page }) => {});
-test.skip("adds a todo when clicking the Add button", async ({ page }) => {});
-// ...
+test.describe("P1 — {User Story title}", () => {
+  test.skip("{acceptance criterion}", async ({ page }) => {});
+  test.skip("{acceptance criterion}", async ({ page }) => {});
+});
+
+test.describe("P2 — {User Story title}", () => {
+  test.skip("{acceptance criterion}", async ({ page }) => {});
+});
 ```
 
 **B. Vitest unit stubs** — only for acceptance criteria that test pure logic with no UI (e.g., a utility function, data transformer, or server function in isolation).

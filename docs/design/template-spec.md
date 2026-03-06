@@ -2,40 +2,51 @@
 
 **Issue**: {ISSUE-ID}
 **Date**: {YYYY-MM-DD}
+**Status**: Draft
 
-## Summary
+## Opportunity
 
-{One-paragraph description of what this feature/change does and why.}
+**Problem**: {What is broken or missing?}
+**Who is affected**: {Which users / personas / teams?}
+**Business value**: {Why does solving this matter?}
+**Why now**: {What makes this timely or urgent?}
 
-## Motivation
+## User Stories
 
-{Why is this change needed? What problem does it solve? Reference the Linear issue context.}
+### P1 — {Title} *(must-have)*
+
+{Plain language description of the core journey}
+
+**Acceptance Criteria**:
+- Given {state}, When {action}, Then {outcome}
+- Given {state}, When {action}, Then {outcome}
+
+### P2 — {Title} *(should-have)*
+
+{Plain language description — omit this section if nothing qualifies}
+
+**Acceptance Criteria**:
+- Given {state}, When {action}, Then {outcome}
+
+### P3 — {Title} *(nice-to-have)*
+
+{Plain language description — omit this section if nothing qualifies}
+
+**Acceptance Criteria**:
+- Given {state}, When {action}, Then {outcome}
+
+## Success Criteria
+
+- {Measurable outcome}
+- {Measurable outcome}
 
 ## ADR Reference
 
-{Link to related ADR (e.g., `../adr/NNNN-slug.md`) or "N/A" if no architectural decision is involved.}
-
-## Acceptance Criteria
-
-{Gherkin-format scenarios. Each scenario becomes a test case.}
-
-```gherkin
-Feature: {Feature name}
-
-  Scenario: {Scenario name}
-    Given {initial context}
-    When {action}
-    Then {expected outcome}
-
-  Scenario: {Another scenario}
-    Given {initial context}
-    When {action}
-    Then {expected outcome}
-```
+{Link to related ADR (e.g., `../adr/NNNN-slug.md`) or "N/A"}
 
 ## Technical Approach
 
-{How will this be implemented? Describe components, data flow, key decisions. Keep it concise — enough for a reviewer to understand the approach, not a line-by-line plan.}
+{How will this be implemented? Components, data flow, key decisions. Concise — enough for a reviewer to understand the approach.}
 
 ## File Changes
 
@@ -48,4 +59,3 @@ Feature: {Feature name}
 ## Out of Scope
 
 - {What this issue explicitly does NOT cover}
-- {Deferral of related but separate work}
