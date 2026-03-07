@@ -1,6 +1,7 @@
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
 import type { Todo } from "./types";
 
 type Props = {
@@ -19,7 +20,10 @@ export default function TodoItem({ todo, onToggle, onDelete }: Props) {
 			/>
 			<label
 				htmlFor={todo.id}
-				className={`flex-1 cursor-pointer ${todo.completed ? "line-through text-muted-foreground" : ""}`}
+				className={cn(
+					"flex-1 cursor-pointer",
+					todo.completed && "line-through text-muted-foreground",
+				)}
 			>
 				{todo.text}
 			</label>

@@ -9,7 +9,7 @@ The todo list will be implemented as a client-side React feature using in-memory
 
 A new feature folder `src/features/todo-list/` will contain all business logic: a `TodoList` component that manages the list state, a `TodoItem` component for individual items, and a shared `types.ts` for the `Todo` type. The route file at `src/routes/todos.tsx` will be a thin wrapper that imports and renders the feature component. The header will get a nav link to `/todos`.
 
-UI will use shadcn/ui components (Input, Button, Checkbox, Card) styled with Tailwind CSS. Each todo item will have a checkbox for toggling completion (with strikethrough styling when complete) and a delete button. An empty-state message will display when no todos exist. The input form will reject empty submissions by checking trimmed input length before adding.
+UI will use shadcn/ui components (Input, Button, Checkbox) styled with Tailwind CSS. Each todo item will have a checkbox for toggling completion (with strikethrough styling when complete) and a delete button. An empty-state message will display when no todos exist. The input form will reject empty submissions by checking trimmed input length before adding.
 
 ## File Changes
 
