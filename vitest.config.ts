@@ -5,6 +5,5 @@ export default defineConfig({
 	plugins: [viteTsConfigPaths({ projects: ["./tsconfig.json"] })],
 	test: {
 		environment: "jsdom",
-		exclude: ["**/node_modules/**", "e2e/**"],
 	},
 });

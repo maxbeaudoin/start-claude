@@ -24,19 +24,6 @@ bun install
 bun run dev
 ```
 
-## Task Workflow
-
-This project uses a design-first, TDD-driven workflow powered by [Claude Code](https://claude.ai/code) skills:
-
-1. **`/design <Linear issue ID>`** — Fetches the issue, creates a feature branch, produces an ADR (if needed), a spec with Gherkin acceptance criteria, and failing test stubs.
-2. **Review** the design artifacts on the branch.
-3. **`/implement <Linear issue ID>`** — Implements code per the spec, iterates until tests pass, runs quality checks, and opens a PR.
-4. **Review** the PR and merge.
-
-Design artifacts live alongside code:
-- `docs/adr/` — Architecture Decision Records (MADR v3)
-- `docs/design/` — Feature specs with acceptance criteria
-
 ## Production
 
 ```bash
