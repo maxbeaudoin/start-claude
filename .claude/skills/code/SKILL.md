@@ -1,6 +1,6 @@
 ---
 name: code
-description: Implementation skill — reads the capability spec (and plan if present), implements the feature in src/features/<feature>/, writes tests from spec scenarios, runs quality checks, opens a draft PR, and posts the PR link to Linear.
+description: Implementation skill — reads the capability spec (and plan if present), implements the feature in src/features/<feature>/, writes tests from spec scenarios, runs quality checks, opens a PR, and posts the PR link to Linear.
 model: sonnet
 disable-model-invocation: true
 ---
@@ -132,11 +132,11 @@ git commit -m "<type>: <description> (<issue-id>)"
 Use the conventional commit prefix matching the branch prefix (`feat:`, `fix:`,
 `chore:`, `docs:`, `refactor:`).
 
-### 9. Push and open draft PR
+### 9. Push and open PR
 
 ```bash
 git push -u origin <branch-name>
-gh pr create --draft \
+gh pr create \
   --title "<type>: <description>" \
   --body "$(cat <<'EOF'
 ## Summary
@@ -161,7 +161,7 @@ Capture the PR URL from the `gh pr create` output.
 
 ### 10. Post PR link to Linear
 
-Use `mcp__linear__save_comment` to post the draft PR URL as a comment on the
+Use `mcp__linear__save_comment` to post the PR URL as a comment on the
 Linear issue.
 
 Then set the issue state to **In Review** via `mcp__linear__save_issue`.
@@ -174,7 +174,6 @@ Print:
 - PR URL
 - Files changed
 - Test results summary
-- Reminder: "Mark the PR ready for review when done."
 
 ## Constraints
 
