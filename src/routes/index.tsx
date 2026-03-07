@@ -19,7 +19,7 @@ function App() {
 				</p>
 				<a
 					className="text-[#61dafb] hover:underline"
-					href="https://reactjs.org"
+					href="https://react.dev"
 					target="_blank"
 					rel="noopener noreferrer"
 				>

@@ -11,8 +11,43 @@ bun run start        # serve production build
 bun run test         # run all tests; append a file path to run one
 bun run typecheck    # TypeScript type checking
 bun run check:fix    # Biome lint + format (auto-fix)
+bun run test:e2e     # Playwright E2E tests (requires dev server or uses webServer config)
 bunx shadcn add <component>
 ```
+
+## Setup
+
+### Secrets / Environment Variables
+
+Secrets live in `.claude/settings.local.json` (gitignored) under the `env` key. Claude Code injects these into its session and passes them to MCP servers.
+
+### Linear MCP Server
+
+The `/design` skill uses the Linear MCP server (configured in `.mcp.json`) to fetch issue details.
+
+1. Generate a Linear API key: **Linear → Settings → API → Personal API keys**
+2. Add it to `.claude/settings.local.json`:
+   ```json
+   {
+     "env": {
+       "LINEAR_API_KEY": "lin_api_xxxxxxxxxxxx"
+     }
+   }
+   ```
+3. Restart Claude Code.
+
+## Task Workflow
+
+This project uses a design-first, TDD-driven workflow via two Claude Code skills:
+
+1. **`/design <Linear issue ID>`** — Fetches issue from Linear, creates feature branch, writes ADR (if needed), spec with Gherkin acceptance criteria, and failing test stubs. Commits design artifacts for review.
+2. **`/implement <Linear issue ID>`** — Reads design artifacts, implements code per spec, runs tests iteratively until green, runs quality checks, commits, pushes, and opens a PR.
+
+**Artifacts**:
+- ADRs: `docs/adr/NNNN-<slug>.md` (MADR v3 format) — permanent architectural decisions
+- Specs: `specs/<issue-id>-<slug>/spec.md` (Spec Kit format) — cumulative product documentation, never deleted
+- E2E tests: `e2e/` (Playwright) — executable verification of acceptance criteria
+- Unit tests: `src/__tests__/` (Vitest) — pure logic with no UI dependency
 
 ## Git Workflow
 
@@ -37,6 +72,16 @@ gh pr create --title "feat: add my feature" --body "## Summary\n- ..."
 - **POLA** — code should behave as a reader would expect, avoid surprises
 - **DRY** — extract shared logic, but only once there are 3+ real uses
 - **SOLID** — single responsibility, open/closed, Liskov substitution, interface segregation, dependency inversion
+
+## Testing
+
+**E2E (Playwright)** — acceptance criteria that involve rendering or user interaction. Config: `playwright.config.ts`. Run with `bun run test:e2e`.
+
+SSR hydration patterns to follow in every Playwright test:
+- Call `await page.waitForLoadState("networkidle")` after every `page.goto()` — the SSR HTML arrives before React hydrates, so interactions fired immediately will miss event handlers
+- Use `pressSequentially("text")` instead of `fill("text")` for React controlled inputs — `fill()` fires native DOM events that bypass React's synthetic event system
+
+**Unit (Vitest)** — pure logic with no UI. Config: `vitest.config.ts` (excludes `e2e/`). Run with `bun run test`.
 
 ## Architecture
 
