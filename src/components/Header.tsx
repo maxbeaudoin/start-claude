@@ -15,6 +15,10 @@ export default function Header() {
 				<div className="px-2 font-bold">
 					<Link to="/demo/start/api-request">Start - API Request</Link>
 				</div>
+
+				<div className="px-2 font-bold">
+					<Link to="/todos">Todos</Link>
+				</div>
 			</nav>
 		</header>
 	);
