@@ -36,42 +36,58 @@ Checkout the PR branch so edits can be committed:
 gh pr checkout <number>
 ```
 
-### 3. Fetch active review comments
+### 3. Fetch unresolved review threads
 
-Retrieve all unresolved review comments (inline thread comments, not top-level PR
-comments):
+Use GraphQL to retrieve unresolved review threads (the REST endpoint does not expose
+resolution status):
 
 ```bash
-gh api repos/{owner}/{repo}/pulls/<number>/comments \
-  --paginate \
-  --jq '[.[] | {id, path, line, body, user: .user.login, url: .html_url, in_reply_to_id}]'
+gh api graphql --paginate --field query='
+  query($endCursor: String) {
+    repository(owner: "<owner>", name: "<repo>") {
+      pullRequest(number: <number>) {
+        reviewThreads(first: 100, after: $endCursor) {
+          pageInfo { hasNextPage, endCursor }
+          nodes {
+            id
+            isResolved
+            path
+            line
+            startLine
+            comments(first: 50) {
+              nodes { databaseId, body, author { login } }
+            }
+          }
+        }
+      }
+    }
+  }'
 ```
 
-Filter to top-level comments only (no `in_reply_to_id`) — replies are context, not
-new suggestions. Ignore any comment whose `user.login` is not `"copilot-pull-request-reviewer"`.
+Filter to threads where:
+- `isResolved` is `false`
+- The first comment's `author.login` is `"copilot-pull-request-reviewer"`
 
-If there are no active Copilot comments, print "No active Copilot review comments
-found." and stop.
+Each thread node already contains its `id` (for resolution), `path`, `line`, and all
+comment bodies. No separate grouping step is needed.
 
-### 4. Group comments into threads
+If there are no matching threads, print "No active Copilot review comments found."
+and stop.
 
-Group comments by `path` + starting `line`. Each group is one suggestion to evaluate.
-Collect any reply bodies as context for the thread.
-
-### 5. Evaluate and action each comment — one at a time
+### 4. Evaluate and action each thread — one at a time
 
 For every thread, perform the following evaluation loop before moving to the next.
 
-#### 5a. Read the affected file and context
+#### 4a. Read the affected file and context
 
 ```bash
-gh api repos/{owner}/{repo}/pulls/<number>/comments/<comment-id> \
+gh api repos/{owner}/{repo}/pulls/comments/<comment-id> \
   --jq '{path, line, diff_hunk}'
 ```
 
 Read the file at the commented path to understand the surrounding code.
 
-#### 5b. Critically evaluate the suggestion
+#### 4b. Critically evaluate the suggestion
 
 Ask the following questions:
 
@@ -90,7 +106,7 @@ Ask the following questions:
 
 A suggestion must pass at least questions 1 and 2 to be implemented.
 
-#### 5c. Implement or dismiss
+#### 4c. Implement or dismiss
 
 **If the suggestion is worth implementing:**
 
@@ -101,7 +117,7 @@ A suggestion must pass at least questions 1 and 2 to be implemented.
 
 ```bash
 gh api repos/{owner}/{repo}/pulls/comments/<comment-id>/reactions \
-  --method POST --field content="+1"
+  --method POST --input - <<< '{"content":"+1"}'
 ```
 
 **If the suggestion should be dismissed:**
@@ -112,7 +128,7 @@ gh api repos/{owner}/{repo}/pulls/comments/<comment-id>/reactions \
 
 ```bash
 gh api repos/{owner}/{repo}/pulls/comments/<comment-id>/reactions \
-  --method POST --field content="-1"
+  --method POST --input - <<< '{"content":"-1"}'
 ```
 
 - Reply to the comment thread with a concise, direct rationale:
@@ -124,38 +140,25 @@ gh api repos/{owner}/{repo}/pulls/<number>/comments \
   --field in_reply_to=<comment-id>
 ```
 
-Resolve the thread via the GraphQL API:
+Resolve the thread using the thread node ID obtained in step 3:
 
 ```bash
 gh api graphql \
   --field query='mutation { resolveReviewThread(input: { threadId: "<thread-node-id>" }) { thread { isResolved } } }'
 ```
 
-To obtain the thread node ID for a comment, use:
-
-```bash
-gh api repos/{owner}/{repo}/pulls/<number>/reviews \
-  --jq '.[] | .id'
-# Then fetch threads via GraphQL:
-gh api graphql \
-  --field query='{ repository(owner: "<owner>", name: "<repo>") { pullRequest(number: <number>) { reviewThreads(first: 100) { nodes { id, isResolved, comments(first: 1) { nodes { databaseId } } } } } } }'
-```
-
-Match the thread node ID by comparing `comments.nodes[0].databaseId` to the REST
-comment ID.
-
-### 6. Run quality checks after all implementations
+### 5. Run quality checks after all implementations
 
 Once all comments have been actioned, run the full check suite if any changes were
 made:
 
 ```bash
-bun run check:fix && bun run typecheck && bun run test
+bun run check:fix && bun run typecheck && bun run test && bun run test:e2e && bun run build
 ```
 
 Fix any failures before committing.
 
-### 7. Commit and push (if changes were made)
+### 6. Commit and push (if changes were made)
 
 ```bash
 git add -p   # stage only the files touched by review implementations
@@ -163,7 +166,7 @@ git commit -m "fix: address PR review comments (#<number>)"
 git push
 ```
 
-### 8. Output summary
+### 7. Output summary
 
 Print a table:
 
