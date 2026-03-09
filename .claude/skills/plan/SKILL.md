@@ -37,7 +37,13 @@ if this is a bug fix."
 
 Confirm you are on the correct feature branch. If not, check it out.
 
-### 4. Write changes/<issue-id>-<slug>/plan.md
+### 4. Enter plan mode
+
+Use the `EnterPlanMode` tool to draft the technical approach before writing any files.
+Present the proposed plan structure and file changes to the user for review.
+Once approved, use `ExitPlanMode` to proceed.
+
+### 5. Write changes/<issue-id>-<slug>/plan.md
 
 Create the directory and plan file:
 
@@ -71,7 +77,7 @@ server functions, data flow, and state management are involved. 1-3 paragraphs.>
 alternatives. Omit if nothing significant to record.>
 ```
 
-### 5. Write ADR if warranted
+### 6. Write ADR if warranted
 
 An ADR is warranted when the plan involves:
 - A new dependency
@@ -90,14 +96,19 @@ Consequences. Set status to "Accepted".
 
 Skip if none of the above apply.
 
-### 6. Commit
+### 7. Simplify
+
+Run `/simplify` to review the written plan and ADR for clarity, redundancy, and quality.
+Fix any issues found before committing.
+
+### 8. Commit
 
 ```bash
 git add changes/ docs/adr/
 git commit -m "docs: plan <issue-id>"
 ```
 
-### 7. Post plan to Linear
+### 9. Post plan to Linear
 
 Use `mcp__linear__save_comment` to post the full content of
 `changes/<issue-id>-<slug>/plan.md` as a comment on the Linear issue.
@@ -106,7 +117,7 @@ If an ADR was written, append its path to the comment.
 
 If MCP is unavailable, skip and note it in the output.
 
-### 8. Output summary
+### 10. Output summary
 
 Print:
 - Plan path (`changes/<issue-id>-<slug>/plan.md`)

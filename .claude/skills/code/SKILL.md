@@ -122,7 +122,12 @@ bun run check:fix && bun run typecheck && bun run test && bun run test:e2e && bu
 
 Fix failures before proceeding. Iterate until all checks pass.
 
-### 8. Commit
+### 8. Simplify
+
+Run `/simplify` to review all changed code for reuse, quality, and efficiency.
+Fix any issues found before committing.
+
+### 9. Commit
 
 ```bash
 git add src/ e2e/
@@ -132,7 +137,7 @@ git commit -m "<type>: <description> (<issue-id>)"
 Use the conventional commit prefix matching the branch prefix (`feat:`, `fix:`,
 `chore:`, `docs:`, `refactor:`).
 
-### 9. Push and open PR
+### 10. Push and open PR
 
 ```bash
 git push -u origin <branch-name>
@@ -159,7 +164,7 @@ EOF
 
 Capture the PR URL from the `gh pr create` output.
 
-### 10. Post PR link to Linear
+### 11. Post PR link to Linear
 
 Use `mcp__linear__save_comment` to post the PR URL as a comment on the
 Linear issue.
@@ -168,7 +173,7 @@ Then set the issue state to **In Review** via `mcp__linear__save_issue`.
 
 If MCP is unavailable, skip and note it in the output.
 
-### 11. Output summary
+### 12. Output summary
 
 Print:
 - PR URL
