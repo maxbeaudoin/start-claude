@@ -25,10 +25,13 @@ from it.
 ### 2. Fetch PR metadata
 
 ```bash
-gh pr view <number> --json number,title,headRefName,baseRefName,state,url
+gh pr view <number> --json number,title,headRefName,baseRefName,state,url,owner,repository
 ```
 
 Confirm the PR is open. If it is merged or closed, stop and tell the user.
+
+Extract `owner` and `repo` name from the PR metadata (or from `gh repo view --json owner,name`)
+for use in subsequent API calls.
 
 Checkout the PR branch so edits can be committed:
 
@@ -80,6 +83,9 @@ For every thread, perform the following evaluation loop before moving to the nex
 
 #### 4a. Read the affected file and context
 
+Use the first comment's `databaseId` from the GraphQL response as `<comment-id>` for
+all REST calls (reactions, replies) in this thread.
+
 ```bash
 gh api repos/{owner}/{repo}/pulls/comments/<comment-id> \
   --jq '{path, line, diff_hunk}'
@@ -118,6 +124,13 @@ A suggestion must pass at least questions 1 and 2 to be implemented.
 ```bash
 gh api repos/{owner}/{repo}/pulls/comments/<comment-id>/reactions \
   --method POST --input - <<< '{"content":"+1"}'
+```
+
+- Resolve the thread using the thread node ID obtained in step 3:
+
+```bash
+gh api graphql \
+  --field query='mutation { resolveReviewThread(input: { threadId: "<thread-node-id>" }) { thread { isResolved } } }'
 ```
 
 **If the suggestion should be dismissed:**
