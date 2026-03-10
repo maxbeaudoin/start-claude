@@ -10,6 +10,11 @@ disable-model-invocation: true
 Implements what the spec diff on the current branch describes. Scope is derived from
 what changed in `specs/` — not the full spec, just what is new or changed.
 
+## Input
+
+`$ARGUMENTS` — required only when no spec diff exists (bug fix or trivial change).
+Pass prose or `@path` to a context file. Ignored when a spec diff is present.
+
 ## Steps
 
 ### 1. Discover scope
@@ -24,7 +29,7 @@ git diff main -- specs/<feature>/spec.md
 The diff reveals which scenarios are new or changed — implement only those.
 Scenarios already in the spec before this branch are already implemented.
 
-If no spec exists (bug fix or trivial change), read the context file in `.claude/tmp/` as the requirement.
+If no spec exists (bug fix or trivial change), `$ARGUMENTS` must provide the requirement — either as prose or `@path` to a context file.
 
 ### 2. Read plan (if present)
 

@@ -31,12 +31,7 @@ git diff main -- specs/<feature>/spec.md
 
 If no specs have changed on this branch, tell the user and stop.
 
-### 2. Load context
-
-Read `.claude/tmp/<context-file>` if present for business rationale and issue details.
-The context file path is passed by `/ship` via the subagent prompt.
-
-### 3. Determine plan directory name
+### 2. Determine plan directory name
 
 If `$ARGUMENTS` is provided: `changes/<arguments>-<feature>/plan.md`
 Otherwise derive from branch name: `changes/<branch-slug>/plan.md`

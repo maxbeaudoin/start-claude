@@ -102,8 +102,7 @@ Spawn a subagent:
 
 Spawn a subagent:
 
-> Read `.claude/skills/code/SKILL.md` and execute it.
-> Business context is available at `.claude/tmp/<context-file>` if needed.
+> Read `.claude/skills/code/SKILL.md` and execute it with ARGUMENTS=`@.claude/tmp/<context-file>`.
 > Report files changed, scenarios implemented, and test results when done.
 
 Wait for completion before proceeding.
