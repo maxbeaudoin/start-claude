@@ -1,6 +1,6 @@
 ---
 name: spec
-description: Writes or updates the capability spec for the current feature branch. Reads context from .claude/context.md or ARGUMENTS. Does not manage branches or post to Linear — those are /ship's responsibilities.
+description: Writes or updates the capability spec for the current feature branch from a prose description or context file passed via $ARGUMENTS.
 model: opus
 disable-model-invocation: true
 ---

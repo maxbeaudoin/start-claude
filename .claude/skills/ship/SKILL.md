@@ -26,6 +26,10 @@ handle only their capability work — everything else lives here.
 Fetch from Linear using `mcp__linear__get_issue`: title, description, labels, priority.
 If Linear is unavailable, ask the user to provide the details manually.
 
+```bash
+mkdir -p .claude/tmp
+```
+
 Write `.claude/tmp/<issue-id>.md` (e.g. `.claude/tmp/MXB-7.md`):
 
 ```md
@@ -98,7 +102,8 @@ Spawn a subagent:
 
 Spawn a subagent:
 
-> Read `.claude/skills/code/SKILL.md` and execute it. Context is in `.claude/context.md`.
+> Read `.claude/skills/code/SKILL.md` and execute it.
+> Business context is available at `.claude/tmp/<context-file>` if needed.
 > Report files changed, scenarios implemented, and test results when done.
 
 Wait for completion before proceeding.
@@ -130,7 +135,7 @@ ${CLAUDE_SKILL_DIR}/scripts/create-pr.sh "<type>: <title>" << 'EOF'
 EOF
 ```
 
-Capture the PR URL from output.
+Capture the PR URL and number from output (e.g. `gh pr view --json number,url`).
 
 ### 8. Post to Linear
 

@@ -24,15 +24,15 @@ git diff main -- specs/<feature>/spec.md
 The diff reveals which scenarios are new or changed — implement only those.
 Scenarios already in the spec before this branch are already implemented.
 
-If no spec exists (bug fix or trivial change), read `.claude/context.md` as the requirement.
+If no spec exists (bug fix or trivial change), read the context file in `.claude/tmp/` as the requirement.
 
 ### 2. Read plan (if present)
 
 ```bash
-ls changes/*/plan.md 2>/dev/null
+git diff main --name-only -- changes/
 ```
 
-Find the plan matching this branch. Read it for technical approach and file change guidance.
+Read the plan file(s) introduced on this branch for technical approach and file change guidance.
 If absent, derive the approach from the spec and codebase context.
 
 ### 3. Implement in src/features/<feature>/

@@ -33,7 +33,8 @@ If no specs have changed on this branch, tell the user and stop.
 
 ### 2. Load context
 
-Read `.claude/context.md` if present for business rationale and issue details.
+Read `.claude/tmp/<context-file>` if present for business rationale and issue details.
+The context file path is passed by `/ship` via the subagent prompt.
 
 ### 3. Determine plan directory name
 
