@@ -12,4 +12,4 @@ body=$5
 gh api "repos/$owner/$repo/pulls/$number/comments" \
   --method POST \
   --field body="$body" \
-  --field in_reply_to="$comment_id"
+  -F in_reply_to="$comment_id"

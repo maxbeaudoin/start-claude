@@ -15,7 +15,7 @@ dismissed with a clear rationale.
 
 | Script | Purpose |
 |--------|---------|
-| `${CLAUDE_SKILL_DIR}/scripts/fetch-threads.sh <owner> <repo> <number>` | Paginated GraphQL — returns all review threads |
+| `${CLAUDE_SKILL_DIR}/scripts/fetch-threads.sh <owner> <repo> <number>` | Paginated GraphQL — returns unresolved review threads |
 | `${CLAUDE_SKILL_DIR}/scripts/resolve-thread.sh <thread-node-id>` | GraphQL mutation — marks a thread resolved |
 | `${CLAUDE_SKILL_DIR}/scripts/react-comment.sh <owner> <repo> <comment-id> <+1\|-1>` | Posts a thumbs-up or thumbs-down reaction |
 | `${CLAUDE_SKILL_DIR}/scripts/reply-comment.sh <owner> <repo> <number> <comment-id> <body>` | Posts an inline reply to a thread |
