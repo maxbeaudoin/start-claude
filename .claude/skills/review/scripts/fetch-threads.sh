@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Usage: fetch-threads.sh <owner> <repo> <pr-number>
-# Fetches all unresolved Copilot review threads for a pull request via GraphQL.
-# Output: raw JSON from gh api graphql (paginated, merged automatically by --paginate).
+# Fetches all review threads for a pull request via GraphQL.
+# Filtering (e.g. unresolved, Copilot-authored) is done by the caller.
 set -euo pipefail
 
 owner=$1

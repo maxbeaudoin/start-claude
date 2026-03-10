@@ -167,4 +167,5 @@ Then print the count: `X implemented, Y dismissed`.
 - If a suggestion is ambiguous, lean toward dismissal and explain why in the reply.
 - Do not modify files outside the PR's changed file set unless a suggestion is
   clearly a bug fix that warrants it.
-- Always reply to every comment thread — leave no thread without a response.
+- Always respond to every comment thread — react and resolve for implemented
+  suggestions; reply with a rationale and resolve for dismissed ones.
