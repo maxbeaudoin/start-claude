@@ -15,27 +15,6 @@ bun run test:e2e     # Playwright E2E tests (requires dev server or uses webServ
 bunx shadcn add <component>
 ```
 
-## Setup
-
-### Secrets / Environment Variables
-
-Secrets live in `.claude/settings.local.json` (gitignored) under the `env` key. Claude Code injects these into its session and passes them to MCP servers.
-
-### Linear MCP Server
-
-The `/spec`, `/plan`, and `/code` skills use the Linear MCP server (configured in `.mcp.json`) to fetch issue details and post artifacts.
-
-1. Generate a Linear API key: **Linear → Settings → API → Personal API keys**
-2. Add it to `.claude/settings.local.json`:
-   ```json
-   {
-     "env": {
-       "LINEAR_API_KEY": "lin_api_xxxxxxxxxxxx"
-     }
-   }
-   ```
-3. Restart Claude Code.
-
 ## Task Workflow
 
 This project uses a spec-driven workflow via three Claude Code skills:
@@ -43,6 +22,7 @@ This project uses a spec-driven workflow via three Claude Code skills:
 1. **`/spec <Linear issue ID>`** — Fetches issue from Linear, creates feature branch, determines capability name from `src/features/`, writes or updates `specs/<feature>/spec.md` with requirements and GIVEN/WHEN/THEN scenarios. Posts spec to Linear.
 2. **`/plan <Linear issue ID>`** — Reads the spec, writes `changes/<issue-id>-<slug>/plan.md` with technical approach and file changes. Writes an ADR if an architectural decision is involved. Posts plan to Linear. **Optional** — skip for simple features.
 3. **`/code <Linear issue ID>`** — Reads spec (and plan if present), implements in `src/features/<feature>/`, writes tests directly from spec scenarios, runs quality checks, opens a draft PR, posts PR link to Linear.
+4. **`/review <PR number>`** — Fetches unresolved PR review comments, critically evaluates each, implements the valuable ones, dismisses weak ones with rationale.
 
 For **bug fixes and typos**, skip to `/code` directly — no spec or plan needed.
 
@@ -57,17 +37,6 @@ For **bug fixes and typos**, skip to `/code` directly — no spec or plan needed
 
 Branches: `feat/`, `fix/`, `chore/`, `docs/` + short description.
 Commits follow Conventional Commits — `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`.
-
-```bash
-git checkout main
-git pull
-git checkout -b feat/my-feature
-bun run check:fix
-git add <files>
-git commit -m "feat: add my feature"
-git push -u origin feat/my-feature
-gh pr create --title "feat: add my feature" --body "## Summary\n- ..."
-```
 
 ## Principles
 
