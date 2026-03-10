@@ -1,132 +1,96 @@
 ---
 name: plan
-description: Planning skill — reads the capability spec, writes a technical plan (changes/<issue-id>/plan.md), and writes an ADR if an architectural decision is involved. Posts the plan to Linear. Optional step — skip for simple features and go straight to /code.
+description: Reads the capability specs changed on this branch and writes a technical plan. Optional — skip for straightforward changes and go straight to /code.
 model: opus
 disable-model-invocation: true
 ---
 
 # /plan
 
-Translates a capability spec into a technical plan. Use this for non-trivial features
-where the approach warrants discussion before coding starts. Skip it for straightforward
-implementations and go directly to `/code`.
+Translates spec changes on the current branch into a technical plan. Use for non-trivial
+features where the approach warrants discussion before coding starts.
 
 ## Input
 
-`$ARGUMENTS` — a Linear issue ID (e.g. `MXB-7`).
+`$ARGUMENTS` — an optional issue ID or slug used to name the plan directory (e.g. `MXB-7`).
+If empty, derives from the branch name.
 
 ## Steps
 
-### 1. Parse issue ID
-
-Extract the Linear issue identifier from `$ARGUMENTS`.
-
-### 2. Locate the spec
-
-Scan `specs/` to find the spec for this issue's feature:
+### 1. Discover changed specs
 
 ```bash
-ls specs/
+git diff main --name-only -- specs/
 ```
 
-Read `specs/<feature>/spec.md`. If no spec exists, tell the user:
-"No spec found. Run `/spec <issue-id>` first, or run `/code <issue-id>` directly
-if this is a bug fix."
+Read each changed spec file in full. Then read the diff to understand what is new:
 
-### 3. Verify branch
-
-Confirm you are on the correct feature branch. If not, check it out.
-
-### 4. Enter plan mode
-
-Use the `EnterPlanMode` tool to draft the technical approach before writing any files.
-Present the proposed plan structure and file changes to the user for review.
-Once approved, use `ExitPlanMode` to proceed.
-
-### 5. Write changes/<issue-id>-<slug>/plan.md
-
-Create the directory and plan file:
-
-```
-changes/<issue-id>-<slug>/plan.md
+```bash
+git diff main -- specs/<feature>/spec.md
 ```
 
-Use this format:
+If no specs have changed on this branch, tell the user and stop.
+
+### 2. Determine plan directory name
+
+If `$ARGUMENTS` is provided: `changes/<arguments>-<feature>/plan.md`
+Otherwise derive from branch name: `changes/<branch-slug>/plan.md`
+
+### 3. Write plan.md
 
 ```md
-# Plan: <Issue ID> — <Title>
+# Plan: <Title>
 
 **Spec:** `specs/<feature>/spec.md`
 **Branch:** `<branch>`
 
 ## Approach
 
-<Technical description of how the feature will be implemented. What components,
-server functions, data flow, and state management are involved. 1-3 paragraphs.>
+<Technical description. What components, server functions, data flow, state management.
+1-3 paragraphs.>
 
 ## File Changes
 
 | File | Action | Notes |
 |------|--------|-------|
 | `src/features/<feature>/...` | create | ... |
-| `src/routes/<feature>/...` | create | thin route, imports from feature |
 
 ## Decisions
 
-<Key technical choices that are not obvious from the spec. Why this approach over
-alternatives. Omit if nothing significant to record.>
+<Key technical choices and why this approach over alternatives. Omit if nothing significant.>
 ```
 
-### 6. Write ADR if warranted
+### 4. Write ADR if warranted
 
-An ADR is warranted when the plan involves:
-- A new dependency
-- A change to the established architecture
-- A pattern being introduced for the first time
-- A decision future developers would otherwise re-litigate
-
-Count existing files in `docs/adr/` to determine the next number:
+Warranted when the plan involves a new dependency, a change to established architecture,
+a new pattern being introduced for the first time, or a decision future developers would
+otherwise re-litigate.
 
 ```bash
 ls docs/adr/*.md 2>/dev/null | wc -l
 ```
 
-Create `docs/adr/NNNN-<slug>.md` using MADR v3 format: Status, Context, Decision,
-Consequences. Set status to "Accepted".
+Create `docs/adr/NNNN-<slug>.md` using MADR v3 format. Skip if none of the above apply.
 
-Skip if none of the above apply.
+### 5. Simplify
 
-### 7. Simplify
+Run `/simplify` to review the plan and ADR for clarity, redundancy, and quality.
 
-Run `/simplify` to review the written plan and ADR for clarity, redundancy, and quality.
-Fix any issues found before committing.
-
-### 8. Commit
+### 6. Commit
 
 ```bash
 git add changes/ docs/adr/
-git commit -m "docs: plan <issue-id>"
+git commit -m "docs: plan <slug>"
 ```
 
-### 9. Post plan to Linear
-
-Use `mcp__linear__save_comment` to post the full content of
-`changes/<issue-id>-<slug>/plan.md` as a comment on the Linear issue.
-
-If an ADR was written, append its path to the comment.
-
-If MCP is unavailable, skip and note it in the output.
-
-### 10. Output summary
+### 7. Output summary
 
 Print:
-- Plan path (`changes/<issue-id>-<slug>/plan.md`)
+- Plan path
 - ADR path if written
-- Reminder: "Review the plan, then run `/code <issue-id>`."
+- Key decisions made
 
 ## Constraints
 
 - Do NOT write implementation code
-- Do NOT write test stubs
-- `changes/` artifacts are versioned but not living docs — do not update a plan after
-  `/code` has started; create a new entry if the approach changes significantly
+- Do NOT update a plan after `/code` has started — create a new entry if the approach changes

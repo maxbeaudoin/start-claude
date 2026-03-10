@@ -17,14 +17,15 @@ bunx shadcn add <component>
 
 ## Task Workflow
 
-This project uses a spec-driven workflow via three Claude Code skills:
+The primary entry point is `/ship`. The pipeline skills exist for re-running individual steps.
 
-1. **`/spec <Linear issue ID>`** — Fetches issue from Linear, creates feature branch, determines capability name from `src/features/`, writes or updates `specs/<feature>/spec.md` with requirements and GIVEN/WHEN/THEN scenarios. Posts spec to Linear.
-2. **`/plan <Linear issue ID>`** — Reads the spec, writes `changes/<issue-id>-<slug>/plan.md` with technical approach and file changes. Writes an ADR if an architectural decision is involved. Posts plan to Linear. **Optional** — skip for simple features.
-3. **`/code <Linear issue ID>`** — Reads spec (and plan if present), implements in `src/features/<feature>/`, writes tests directly from spec scenarios, runs quality checks, opens a draft PR, posts PR link to Linear.
-4. **`/review <PR number>`** — Fetches unresolved PR review comments, critically evaluates each, implements the valuable ones, dismisses weak ones with rationale.
+- **`/ship <Linear issue ID or description>`** — Full pipeline: fetches context, creates branch, runs the appropriate skills, pushes, opens PR, posts to Linear, waits for Copilot review. Skips spec/plan automatically for bug fixes, docs, and chores.
+- **`/review <PR number>`** — Standalone: evaluates Copilot review comments on any PR, implements valuable ones, dismisses weak ones with rationale.
 
-For **bug fixes and typos**, skip to `/code` directly — no spec or plan needed.
+**Pipeline skills** (called by `/ship`, or individually to re-run a step):
+- **`/spec <description or @context-file>`** — Writes or updates `specs/<feature>/spec.md`. Pass prose or use `@` to inline a context file (e.g. `@.claude/tmp/MXB-7.md`).
+- **`/plan`** — Reads spec changes on the current branch (`git diff main -- specs/`), writes `changes/<slug>/plan.md`. Optional.
+- **`/code`** — Implements new scenarios from the spec diff, writes tests, runs quality checks, commits.
 
 **Artifacts**:
 - Specs: `specs/<feature>/spec.md` — living capability docs, per-feature, never deleted

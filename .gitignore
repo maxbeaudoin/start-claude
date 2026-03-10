@@ -17,3 +17,4 @@ todos.json
 CLAUDE.local.md
 .claude/settings.local.json
 .claude/skills/local/**
+.claude/tmp/
