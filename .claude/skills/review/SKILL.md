@@ -11,6 +11,15 @@ Processes active review comments on a pull request. Every suggestion is challeng
 for relevance and value. Worthwhile suggestions are implemented; weak ones are
 dismissed with a clear rationale.
 
+## Supporting scripts
+
+| Script | Purpose |
+|--------|---------|
+| `${CLAUDE_SKILL_DIR}/scripts/fetch-threads.sh <owner> <repo> <number>` | Paginated GraphQL — returns unresolved review threads |
+| `${CLAUDE_SKILL_DIR}/scripts/resolve-thread.sh <thread-node-id>` | GraphQL mutation — marks a thread resolved |
+| `${CLAUDE_SKILL_DIR}/scripts/react-comment.sh <owner> <repo> <comment-id> <+1\|-1>` | Posts a thumbs-up or thumbs-down reaction |
+| `${CLAUDE_SKILL_DIR}/scripts/reply-comment.sh <owner> <repo> <number> <comment-id> <body>` | Posts an inline reply to a thread |
+
 ## Input
 
 `$ARGUMENTS` — a PR number (e.g. `42`) or a GitHub PR URL.
@@ -41,37 +50,14 @@ gh pr checkout <number>
 
 ### 3. Fetch unresolved review threads
 
-Use GraphQL to retrieve unresolved review threads (the REST endpoint does not expose
-resolution status):
-
 ```bash
-gh api graphql --paginate --field query='
-  query($endCursor: String) {
-    repository(owner: "<owner>", name: "<repo>") {
-      pullRequest(number: <number>) {
-        reviewThreads(first: 100, after: $endCursor) {
-          pageInfo { hasNextPage, endCursor }
-          nodes {
-            id
-            isResolved
-            path
-            line
-            startLine
-            comments(first: 50) {
-              nodes { databaseId, body, author { login } }
-            }
-          }
-        }
-      }
-    }
-  }'
+${CLAUDE_SKILL_DIR}/scripts/fetch-threads.sh <owner> <repo> <number>
 ```
 
-Filter to threads where:
-- `isResolved` is `false`
-- The first comment's `author.login` is `"copilot-pull-request-reviewer"`
+Filter to threads where the first comment's `author.login` is `"copilot-pull-request-reviewer"`
+— the script already excludes resolved threads.
 
-Each thread node already contains its `id` (for resolution), `path`, `line`, and all
+Each thread node contains its `id` (for resolution), `path`, `line`, and all
 comment bodies. No separate grouping step is needed.
 
 If there are no matching threads, print "No active Copilot review comments found."
@@ -117,20 +103,17 @@ A suggestion must pass at least questions 1 and 2 to be implemented.
 **If the suggestion is worth implementing:**
 
 - Apply the change to the affected file.
-- Run `bun run check:fix && bun run typecheck` to confirm nothing broke.
 - React 👍 to the Copilot comment to signal acceptance and provide Copilot fine-tuning
   feedback:
 
 ```bash
-gh api repos/{owner}/{repo}/pulls/comments/<comment-id>/reactions \
-  --method POST --input - <<< '{"content":"+1"}'
+${CLAUDE_SKILL_DIR}/scripts/react-comment.sh <owner> <repo> <comment-id> +1
 ```
 
 - Resolve the thread using the thread node ID obtained in step 3:
 
 ```bash
-gh api graphql \
-  --field query='mutation { resolveReviewThread(input: { threadId: "<thread-node-id>" }) { thread { isResolved } } }'
+${CLAUDE_SKILL_DIR}/scripts/resolve-thread.sh <thread-node-id>
 ```
 
 **If the suggestion should be dismissed:**
@@ -140,38 +123,23 @@ gh api graphql \
   feedback:
 
 ```bash
-gh api repos/{owner}/{repo}/pulls/comments/<comment-id>/reactions \
-  --method POST --input - <<< '{"content":"-1"}'
+${CLAUDE_SKILL_DIR}/scripts/react-comment.sh <owner> <repo> <comment-id> -1
 ```
 
 - Reply to the comment thread with a concise, direct rationale:
 
 ```bash
-gh api repos/{owner}/{repo}/pulls/<number>/comments \
-  --method POST \
-  --field body="Closing — <reason: e.g. 'the existing code is correct because...', 'this contradicts the project's Biome config', 'premature abstraction not warranted here'>." \
-  --field in_reply_to=<comment-id>
+${CLAUDE_SKILL_DIR}/scripts/reply-comment.sh <owner> <repo> <number> <comment-id> \
+  "Closing — <reason: e.g. 'the existing code is correct because...', 'this contradicts the project'\''s Biome config', 'premature abstraction not warranted here'>."
 ```
 
-Resolve the thread using the thread node ID obtained in step 3:
+- Resolve the thread:
 
 ```bash
-gh api graphql \
-  --field query='mutation { resolveReviewThread(input: { threadId: "<thread-node-id>" }) { thread { isResolved } } }'
+${CLAUDE_SKILL_DIR}/scripts/resolve-thread.sh <thread-node-id>
 ```
 
-### 5. Run quality checks after all implementations
-
-Once all comments have been actioned, run the full check suite if any changes were
-made:
-
-```bash
-bun run check:fix && bun run typecheck && bun run test && bun run test:e2e && bun run build
-```
-
-Fix any failures before committing.
-
-### 6. Commit and push (if changes were made)
+### 5. Commit and push (if changes were made)
 
 ```bash
 git add -p   # stage only the files touched by review implementations
@@ -179,7 +147,7 @@ git commit -m "fix: address PR review comments (#<number>)"
 git push
 ```
 
-### 7. Output summary
+### 6. Output summary
 
 Print a table:
 
@@ -198,4 +166,5 @@ Then print the count: `X implemented, Y dismissed`.
 - If a suggestion is ambiguous, lean toward dismissal and explain why in the reply.
 - Do not modify files outside the PR's changed file set unless a suggestion is
   clearly a bug fix that warrants it.
-- Always reply to every comment thread — leave no thread without a response.
+- Always respond to every comment thread — react and resolve for implemented
+  suggestions; reply with a rationale and resolve for dismissed ones.
