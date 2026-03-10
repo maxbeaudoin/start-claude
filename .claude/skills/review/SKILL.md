@@ -54,9 +54,8 @@ gh pr checkout <number>
 ${CLAUDE_SKILL_DIR}/scripts/fetch-threads.sh <owner> <repo> <number>
 ```
 
-Filter to threads where:
-- `isResolved` is `false`
-- The first comment's `author.login` is `"copilot-pull-request-reviewer"`
+Filter to threads where the first comment's `author.login` is `"copilot-pull-request-reviewer"`
+— the script already excludes resolved threads.
 
 Each thread node contains its `id` (for resolution), `path`, `line`, and all
 comment bodies. No separate grouping step is needed.

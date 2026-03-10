@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Usage: fetch-threads.sh <owner> <repo> <pr-number>
-# Fetches all review threads for a pull request via GraphQL.
-# Filtering (e.g. unresolved, Copilot-authored) is done by the caller.
+# Fetches all unresolved review threads for a pull request via GraphQL.
+# Handles pagination and outputs a single JSON array of unresolved thread nodes.
 set -euo pipefail
 
 owner=$1
@@ -31,4 +31,6 @@ gh api graphql --paginate \
     }' \
   -f owner="$owner" \
   -f repo="$repo" \
-  -F number="$number"
+  -F number="$number" \
+  --jq '.data.repository.pullRequest.reviewThreads.nodes[]' \
+  | jq -s '[.[] | select(.isResolved == false)]'
