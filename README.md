@@ -48,12 +48,14 @@ bun run check:fix    # Biome lint + format (auto-fix)
 
 The boilerplate ships with a todo list app as a working example — its [spec](specs/todo-list/spec.md), [plan](changes/mxb-8-todo-list/plan.md), and implementation in `src/features/todo-list/` show exactly what the workflow produces end to end.
 
-Each feature moves through a sequential pipeline of Claude Code skills:
+**`/ship <issue-id or description>`** is the primary entry point — it creates the branch, runs the appropriate pipeline skills, pushes, opens a PR, posts back to Linear, and handles the Copilot review pass. Bug fixes and docs changes skip spec and plan automatically.
 
-1. **`/spec <issue-id>`** — Fetches the issue, creates a feature branch, and writes `specs/<feature>/spec.md` with GIVEN/WHEN/THEN acceptance criteria. Posts the spec to Linear.
-2. **`/plan <issue-id>`** — Reads the spec and writes `changes/<issue-id>-<slug>/plan.md` with the technical approach, plus an ADR if an architectural decision is involved. _Optional — skip for simple features._
-3. **`/code <issue-id>`** — Implements the feature in `src/features/<feature>/`, writes tests derived from the spec scenarios, runs quality checks, and opens a draft PR. Posts the PR link to Linear.
-4. **`/review <pr-number>`** — Goes through unresolved PR review comments, implements the ones worth acting on, and dismisses the rest with rationale.
+The pipeline skills can also be run individually to re-run a specific step:
+
+- **`/spec`** — Writes or updates `specs/<feature>/spec.md` from a context file or prose description.
+- **`/plan`** — Reads spec changes on the current branch, writes `changes/<slug>/plan.md`. Optional.
+- **`/code`** — Implements new scenarios from the spec diff, writes tests, runs quality checks, commits.
+- **`/review <pr-number>`** — Evaluates Copilot review comments, implements the valuable ones, dismisses the rest with rationale. Works on any PR.
 
 ### Output Files
 
