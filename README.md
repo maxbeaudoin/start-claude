@@ -52,7 +52,7 @@ The boilerplate ships with a todo list app as a working example — its [spec](s
 
 The pipeline skills can also be run individually to re-run a specific step:
 
-- **`/spec`** — Writes or updates `specs/<feature>/spec.md` from a context file or prose description.
+- **`/spec <description or @context-file>`** — Writes or updates `specs/<feature>/spec.md`. Pass a prose description or use `@` to inline a context file (e.g. `@.claude/tmp/MXB-7.md`).
 - **`/plan`** — Reads spec changes on the current branch, writes `changes/<slug>/plan.md`. Optional.
 - **`/code`** — Implements new scenarios from the spec diff, writes tests, runs quality checks, commits.
 - **`/review <pr-number>`** — Evaluates Copilot review comments, implements the valuable ones, dismisses the rest with rationale. Works on any PR.

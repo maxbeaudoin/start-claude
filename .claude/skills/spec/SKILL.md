@@ -12,18 +12,16 @@ single source of truth for what the feature must do — no test stubs, no implem
 
 ## Input
 
-`$ARGUMENTS` — required. Either:
-- A file path (e.g. `.claude/tmp/MXB-7.md`) — skill reads it as the feature context
-- A prose description — skill uses it directly
+`$ARGUMENTS` — required. The feature description as text. Use `@path` syntax to inline
+a context file (e.g. `/spec @.claude/tmp/MXB-7.md`), or pass prose directly.
 
-If empty, ask the user to provide a description or context file path.
+If empty, ask the user to describe the feature.
 
 ## Steps
 
 ### 1. Load context
 
-If `$ARGUMENTS` is a path to an existing file, read it.
-Otherwise treat `$ARGUMENTS` as the feature description.
+Use `$ARGUMENTS` as the feature description.
 
 ### 2. Determine capability name
 

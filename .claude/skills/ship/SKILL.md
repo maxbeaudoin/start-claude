@@ -81,7 +81,7 @@ For prose input without an issue ID, omit the issue ID segment.
 
 Spawn a subagent:
 
-> Read `.claude/skills/spec/SKILL.md` and execute it with ARGUMENTS=`.claude/tmp/<context-file>`.
+> Read `.claude/skills/spec/SKILL.md` and execute it with ARGUMENTS=`@.claude/tmp/<context-file>`.
 > Report the feature name and spec path when done.
 
 Wait for completion before proceeding.
