@@ -23,7 +23,7 @@ The primary entry point is `/ship`. The pipeline skills exist for re-running ind
 - **`/review <PR number>`** — Standalone: evaluates Copilot review comments on any PR, implements valuable ones, dismisses weak ones with rationale.
 
 **Pipeline skills** (called by `/ship`, or individually to re-run a step):
-- **`/spec`** — Writes or updates `specs/<feature>/spec.md`. Reads from `.claude/context.md` or `$ARGUMENTS`.
+- **`/spec <description or @context-file>`** — Writes or updates `specs/<feature>/spec.md`. Pass prose or use `@` to inline a context file (e.g. `@.claude/tmp/MXB-7.md`).
 - **`/plan`** — Reads spec changes on the current branch (`git diff main -- specs/`), writes `changes/<slug>/plan.md`. Optional.
 - **`/code`** — Implements new scenarios from the spec diff, writes tests, runs quality checks, commits.
 
