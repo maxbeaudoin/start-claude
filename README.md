@@ -48,7 +48,7 @@ bun run check:fix    # Biome lint + format (auto-fix)
 
 The boilerplate ships with a todo list app as a working example — its [spec](specs/todo-list/spec.md), [plan](changes/mxb-8-todo-list/plan.md), and implementation in `src/features/todo-list/` show exactly what the workflow produces end to end.
 
-**`/ship <issue-id or description>`** is the primary entry point — it creates the branch, runs the appropriate pipeline skills, pushes, opens a PR, posts back to Linear, and handles the Copilot review pass. Bug fixes and docs changes skip spec and plan automatically.
+**`/ship <issue-id or description>`** is the primary entry point — it creates the branch, runs the appropriate pipeline skills, pushes, opens a PR, posts back to Linear, and handles the Copilot review pass. Bug fixes, docs, and chores skip spec and plan automatically.
 
 The pipeline skills can also be run individually to re-run a specific step:
 

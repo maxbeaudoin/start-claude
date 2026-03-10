@@ -36,7 +36,7 @@ If no specs have changed on this branch, tell the user and stop.
 If `$ARGUMENTS` is provided: `changes/<arguments>-<feature>/plan.md`
 Otherwise derive from branch name: `changes/<branch-slug>/plan.md`
 
-### 4. Write plan.md
+### 3. Write plan.md
 
 ```md
 # Plan: <Title>
@@ -60,7 +60,7 @@ Otherwise derive from branch name: `changes/<branch-slug>/plan.md`
 <Key technical choices and why this approach over alternatives. Omit if nothing significant.>
 ```
 
-### 6. Write ADR if warranted
+### 4. Write ADR if warranted
 
 Warranted when the plan involves a new dependency, a change to established architecture,
 a new pattern being introduced for the first time, or a decision future developers would
@@ -72,18 +72,18 @@ ls docs/adr/*.md 2>/dev/null | wc -l
 
 Create `docs/adr/NNNN-<slug>.md` using MADR v3 format. Skip if none of the above apply.
 
-### 7. Simplify
+### 5. Simplify
 
 Run `/simplify` to review the plan and ADR for clarity, redundancy, and quality.
 
-### 8. Commit
+### 6. Commit
 
 ```bash
 git add changes/ docs/adr/
 git commit -m "docs: plan <slug>"
 ```
 
-### 9. Output summary
+### 7. Output summary
 
 Print:
 - Plan path

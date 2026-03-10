@@ -140,7 +140,7 @@ Capture the PR URL and number from output (e.g. `gh pr view --json number,url`).
 
 Use `mcp__linear__save_comment` to post the PR URL on the Linear issue.
 Use `mcp__linear__save_issue` to set the issue state to **In Review**.
-Skip silently if Linear is unavailable or if input was prose.
+If Linear is unavailable or input was prose, skip and note "Linear update skipped" in the final summary.
 
 ### 9. Wait for Copilot review
 
